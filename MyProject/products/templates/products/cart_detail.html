@@ -1,0 +1,184 @@
+{% extends 'products/base.html' %}
+
+{% block title %}My Cart | SmartStore AI{% endblock %}
+
+{% block content %}
+<style>
+    .cart-container {
+        max-width: 1000px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 1.5rem;
+    }
+
+    .cart-table {
+        width: 100%;
+        background: white;
+        border-radius: 24px;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        border: 1px solid #eef2ff;
+    }
+
+    .cart-table th {
+        background: #f8fafc;
+        padding: 1.2rem;
+        text-align: left;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+
+    .cart-table td {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .product-cell {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .product-img {
+        width: 70px;
+        height: 70px;
+        background: #f1f5f9;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    .remove-link {
+        color: #ef4444;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: opacity 0.2s;
+    }
+
+    .remove-link:hover { opacity: 0.7; }
+
+    .cart-summary {
+        margin-top: 2rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 24px;
+        border: 1px solid #eef2ff;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 1rem;
+    }
+
+    .total-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .checkout-btn {
+        background: #4f46e5;
+        color: white;
+        text-decoration: none;
+        padding: 1rem 3rem;
+        border-radius: 15px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        transition: all 0.2s;
+    }
+
+    .checkout-btn:hover {
+        transform: translateY(-2px);
+        background: #4338ca;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        background: white;
+        border-radius: 32px;
+        border: 2px dashed #e2e8f0;
+    }
+</style>
+
+<div class="cart-container">
+    <div class="cart-header">
+        <h1 style="font-family: 'Montserrat'; margin: 0;">Shopping Cart</h1>
+        <p style="color: #64748b; font-weight: 600;">{{ cart_items|length }} Items</p>
+    </div>
+
+    {% if cart_items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>
+                    <div class="product-cell">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="product-img">
+                        {% else %}
+                            <div class="product-img" style="display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📦</div>
+                        {% endif %}
+                        <div>
+                            <!-- Using .title to match the Posting model -->
+                            <div style="font-weight: 800; color: #0f172a;">{{ item.product.title }}</div>
+                            <div style="font-size: 0.8rem; color: #64748b;">{{ item.product.category.name }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-weight: 700; color: #0f172a; font-size: 1.1rem;">
+                    ₹{{ item.product.price }}
+                </td>
+                <td>
+                    <!-- Ensure you have a 'remove_from_cart' path in urls.py -->
+                    <a href="{% url 'remove_from_cart' item.id %}" class="remove-link">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="cart-summary">
+        <div style="color: #64748b; font-weight: 600;">Total Amount</div>
+        <div class="total-price">₹{{ total_price }}</div>
+        <a href="{% url 'checkout' %}" class="checkout-btn">Proceed to Checkout</a>
+        <a href="{% url 'product_list' %}" style="color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.9rem;">Continue Shopping</a>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div style="font-size: 4rem; margin-bottom: 1.5rem;">🛒</div>
+        <h2 style="margin-bottom: 1rem;">Your cart is empty</h2>
+        <p style="color: #64748b; margin-bottom: 2rem;">Looks like you haven't added anything to your cart yet.</p>
+        <a href="{% url 'product_list' %}" class="checkout-btn">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

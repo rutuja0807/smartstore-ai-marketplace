@@ -1,0 +1,92 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Order Confirmed | SmartStore AI{% endblock %}
+
+{% block content %}
+<style>
+    .success-container {
+        text-align: center;
+        padding: 5rem 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        background: #dcfce7;
+        color: #10b981;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 2rem;
+        box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+    }
+
+    .order-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 32px;
+        border: 1px solid #eef2ff;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .ai-note {
+        background: #f8faff;
+        padding: 1rem;
+        border-radius: 16px;
+        font-size: 0.9rem;
+        color: #4f46e5;
+        border: 1px solid #e0e7ff;
+        margin-top: 1.5rem;
+    }
+
+    .btn-home {
+        display: inline-block;
+        background: #4f46e5;
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .btn-home:hover {
+        background: #4338ca;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-icon">✓</div>
+    
+    <div class="order-card">
+        <h1 style="font-family: 'Montserrat'; font-weight: 800; margin-bottom: 1rem;">Order Placed!</h1>
+        <p style="color: #64748b; margin-bottom: 0;">Thank you for shopping with SmartStore.</p>
+        <p style="color: #94a3b8; font-size: 0.85rem;">Your order has been recorded and is being processed.</p>
+        
+        <div class="ai-note">
+            🤖 <strong>AI Update:</strong> Your purchase has been factored into your behavioral profile. Check your <strong>Dashboard</strong> to see your updated engagement score!
+        </div>
+    </div>
+
+    <a href="{% url 'home' %}" class="btn-home">Continue Shopping</a>
+    
+    <div style="margin-top: 1.5rem;">
+        <a href="{% url 'store_analytics' %}" style="color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+            View AI Dashboard →
+        </a>
+    </div>
+</div>
+{% endblock %}

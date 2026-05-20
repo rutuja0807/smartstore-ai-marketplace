@@ -1,0 +1,196 @@
+{% extends 'products/base.html' %}
+
+{% block title %}SmartStore Analytics | Insights{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard Layout */
+    .dashboard-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        padding-top: 1rem;
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Grid for Metrics */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .metric-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 28px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::after {
+        content: "";
+        position: absolute;
+        top: 0; right: 0;
+        width: 100px; height: 100px;
+        background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+    }
+
+    .metric-title {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.75rem;
+    }
+
+    .metric-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .metric-subtext {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        font-weight: 600;
+    }
+
+    /* Sales Performance Table */
+    .performance-section {
+        background: white;
+        border-radius: 32px;
+        padding: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .smart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+    }
+
+    .smart-table th {
+        text-align: left;
+        padding: 1.2rem;
+        border-bottom: 2px solid #f1f5f9;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+
+    .smart-table td {
+        padding: 1.2rem;
+        border-bottom: 1px solid #f8fafc;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .product-tag {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .mini-img {
+        width: 40px; height: 40px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .trend-pill {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .high-perform { background: #dcfce7; color: #15803d; }
+    .low-stock { background: #fee2e2; color: #b91c1c; }
+
+</style>
+
+<div class="dashboard-wrapper">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="font-family: 'Montserrat'; font-size: 2.5rem; margin: 0; letter-spacing: -2px;">Store Insights</h1>
+            <p style="color: #64748b; font-weight: 500;">AI-driven performance data for SmartStore.</p>
+        </div>
+        <div style="background: #4f46e5; color: white; padding: 10px 20px; border-radius: 14px; font-weight: 700; cursor: pointer;">
+            Download Report
+        </div>
+    </div>
+
+    <!-- Top Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">Gross Revenue</div>
+            <div class="metric-value">₹{{ total_revenue|default:"0" }}</div>
+            <div class="metric-subtext" style="color: #10b981;">+18% Monthly Growth</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Customer Reach</div>
+            <div class="metric-value">{{ total_views|default:"0" }}</div>
+            <div class="metric-subtext" style="color: #4f46e5;">Total Product Views</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Inventory Health</div>
+            <div class="metric-value">{{ product_count|default:"0" }}</div>
+            <div class="metric-subtext" style="color: #f59e0b;">{{ low_stock_count|default:"2" }} items low on stock</div>
+        </div>
+    </div>
+
+    <!-- Top Performing Products -->
+    <div class="performance-section">
+        <h3 style="font-family: 'Montserrat'; margin: 0;">Product Performance</h3>
+        <table class="smart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Engagement</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        <div class="product-tag">
+                            <div class="mini-img">📦</div>
+                            {{ product.name }}
+                        </div>
+                    </td>
+                    <td>{{ product.category.name }}</td>
+                    <td>₹{{ product.price }}</td>
+                    <td>{{ product.view_count }} views</td>
+                    <td>
+                        {% if product.view_count > 50 %}
+                            <span class="trend-pill high-perform">Hot Item</span>
+                        {% else %}
+                            <span class="trend-pill" style="background: #f1f5f9;">Stable</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

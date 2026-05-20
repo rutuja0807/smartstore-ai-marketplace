@@ -1,0 +1,298 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Explore Marketplace | SmartStore AI{% endblock %}
+
+{% block content %}
+<style>
+    /* 1. HERO & SEARCH SECTION */
+    .hero-explorer {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border-radius: 32px;
+        padding: 4rem 2rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 3rem;
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+    }
+
+    .hero-content h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-content p {
+        opacity: 0.9;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Modern Search Bar */
+    .search-container {
+        max-width: 650px;
+        margin: 0 auto 2.5rem;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 8px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .search-box:focus-within {
+        transform: scale(1.02);
+    }
+
+    .search-box i {
+        color: #94a3b8;
+        margin-left: 20px;
+        font-size: 1.2rem;
+    }
+
+    .search-box input {
+        flex: 1;
+        border: none;
+        padding: 12px 15px;
+        font-size: 1rem;
+        outline: none;
+        color: #1e293b;
+    }
+
+    .btn-search {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-search:hover {
+        background: #4338ca;
+    }
+
+    /* Category Chips */
+    .category-grid-chips {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .chip {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .chip:hover, .chip.active {
+        background: white;
+        color: #4f46e5;
+        transform: translateY(-2px);
+    }
+
+    /* 2. PRODUCT GRID LAYOUT */
+    .shop-container {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 2.5rem;
+    }
+
+    .sidebar-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: all 0.4s ease;
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .trending-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: white;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #4f46e5;
+        z-index: 5;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .img-wrapper {
+        height: 240px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-details {
+        padding: 1.5rem;
+    }
+
+    .price-tag {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+    }
+
+    .card-actions {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 10px;
+    }
+
+    .btn-add-cart {
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        text-align: center;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    .btn-buy-now {
+        background: #10b981;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="hero-explorer">
+    <div class="hero-content">
+        <h1>Find Your Next Favorite Item</h1>
+        <p>AI-Powered recommendations based on your unique style.</p>
+        
+        <form action="{% url 'home' %}" method="GET" class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" placeholder="Search for shoes, watches, electronics..." value="{{ request.GET.q|default:'' }}">
+                <button type="submit" class="btn-search">Search</button>
+            </div>
+        </form>
+
+        <div class="category-grid-chips">
+            <a href="{% url 'home' %}" class="chip {% if not request.GET.category %}active{% endif %}">
+                <i class="fas fa-border-all"></i> All Collections
+            </a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+               class="chip {% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="shop-container">
+    <aside class="sidebar-card">
+        <h4 style="margin-top:0; margin-bottom: 1.5rem; font-family: 'Montserrat';">Shop by Category</h4>
+        <a href="{% url 'home' %}" style="display: block; padding: 10px; text-decoration: none; color: {% if not request.GET.category %}#4f46e5{% else %}#64748b{% endif %}; font-weight: 600;">
+            All Products
+        </a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.id }}" style="display: block; padding: 10px; text-decoration: none; color: {% if request.GET.category == cat.id|stringformat:'s' %}#4f46e5{% else %}#64748b{% endif %}; font-weight: 600;">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+        
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 1.5rem 0;">
+        <p style="font-size: 0.8rem; color: #94a3b8;">{{ products.count }} items found.</p>
+    </aside>
+
+    <section>
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <span class="trending-badge"><i class="fas fa-bolt"></i> Trending</span>
+                
+                <div class="img-wrapper">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                    {% else %}
+                        <div style="color: #cbd5e1;"><i class="fas fa-image fa-3x"></i></div>
+                    {% endif %}
+                </div>
+
+                <div class="product-details">
+                    <small style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">
+                        {{ product.category.name }}
+                    </small>
+                    <h3 style="margin: 0.4rem 0 0.8rem; font-family: 'Montserrat'; font-weight: 700; font-size: 1.1rem; line-height: 1.2;">
+                        {{ product.title }}
+                    </h3>
+                    <div class="price-tag">₹{{ product.price }}</div>
+
+                    <div class="card-actions">
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn-add-cart">
+                            <i class="fas fa-plus"></i> Cart
+                        </a>
+                        <a href="{% url 'add_to_cart' product.id %}?next=checkout" class="btn-buy-now">
+                            Buy Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 5rem; background: white; border-radius: 24px;">
+                <i class="fas fa-search fa-3x" style="color: #e2e8f0; margin-bottom: 1rem;"></i>
+                <h3 style="color: #64748b;">No items match your search.</h3>
+                <a href="{% url 'home' %}" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Clear all filters</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

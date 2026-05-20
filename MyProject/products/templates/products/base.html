@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartStore | AI-Powered Commerce{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-light: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        .smart-nav {
+            background: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo-box {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: -1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .nav-actions {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .btn-auth {
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-login {
+            color: var(--primary);
+            border: 2px solid #eef2ff;
+        }
+
+        .btn-login:hover {
+            background: #eef2ff;
+        }
+
+        .cart-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 0.75rem;
+            vertical-align: top;
+            margin-left: -5px;
+        }
+
+        /* Alert Messages */
+        .alert-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1001;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-success { background: #10b981; }
+        .alert-info { background: #3b82f6; }
+        .alert-warning { background: #f59e0b; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+            min-height: 70vh;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="alert-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <header class="smart-nav">
+        <a href="{% url 'home' %}" class="logo-area">
+            <div class="logo-box">S</div>
+            <span class="logo-text">SmartStore</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}">Shop</a> <a href="{% url 'cart_detail' %}">
+                Cart 
+                {% if user.is_authenticated and user.cartitem_set.count > 0 %}
+                    <span class="cart-badge">{{ user.cartitem_set.count }}</span>
+                {% endif %}
+            </a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'store_analytics' %}" style="color: var(--primary);">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+            {% endif %}
+        </nav>
+
+        <div class="nav-actions">
+            {% if user.is_authenticated %}
+                <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">
+                    Hi, {{ user.username }}
+                </span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: var(--primary); font-weight: 700; cursor: pointer; padding: 8px 20px;">
+                        Logout
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-auth btn-login">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer style="text-align: center; padding: 4rem 0; color: var(--text-muted); border-top: 1px solid #e2e8f0; margin-top: 4rem;">
+        <p style="font-weight: 700; color: var(--text-main);">&copy; 2026 SmartStore AI Platform</p>
+        <p>Advanced Behavioral Recommendation System | Rutuja's Final Project</p>
+    </footer>
+
+    <script>
+        // Auto-hide messages after 4 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = '0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+</html>

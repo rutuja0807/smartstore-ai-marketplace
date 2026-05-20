@@ -1,0 +1,96 @@
+{% extends 'products/base.html' %}
+
+{% block content %}
+<style>
+    .checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
+    .checkout-card { background: white; padding: 2rem; border-radius: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .payment-option { 
+        border: 2px solid #f1f5f9; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: 0.3s;
+    }
+    .payment-option:hover { border-color: #4f46e5; }
+    input[type="radio"]:checked + label .payment-option { border-color: #4f46e5; background: #f8faff; }
+    
+    #qr-section, #card-section { display: none; margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 12px; text-align: center; }
+    .qr-placeholder { width: 150px; height: 150px; background: #ddd; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; }
+</style>
+
+<div class="checkout-grid">
+    <div class="checkout-card">
+        <h2>Shipping & Payment</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <label>Delivery Address</label>
+            <textarea name="address" rows="3" class="form-control" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;" required></textarea>
+
+            <h3 style="margin-top: 2rem;">Select Payment Method</h3>
+            
+            <input type="radio" name="payment_method" value="UPI" id="upi" onclick="showPayment('qr')" required hidden>
+            <label for="upi">
+                <div class="payment-option">
+                    <strong><i class="fas fa-mobile-alt"></i> UPI / PhonePe / GooglePay</strong>
+                </div>
+            </label>
+
+            <input type="radio" name="payment_method" value="Debit Card" id="card" onclick="showPayment('card')" hidden>
+            <label for="card">
+                <div class="payment-option">
+                    <strong><i class="far fa-credit-card"></i> Debit / Credit Card</strong>
+                </div>
+            </label>
+
+            <input type="radio" name="payment_method" value="COD" id="cod" onclick="showPayment('none')" hidden>
+            <label for="cod">
+                <div class="payment-option">
+                    <strong><i class="fas fa-truck"></i> Cash on Delivery</strong>
+                </div>
+            </label>
+
+            <div id="qr-section">
+                <p>Scan to Pay ₹{{ total_price }}</p>
+                <div class="qr-placeholder">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SmartStorePayment" alt="QR Code">
+                </div>
+                <input type="text" placeholder="Enter Transaction ID" class="form-control" style="width: 80%; padding: 8px;">
+            </div>
+
+            <div id="card-section">
+                <input type="text" placeholder="Card Number" style="width: 90%; padding: 8px; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <input type="text" placeholder="MM/YY" style="width: 40%; padding: 8px;">
+                    <input type="text" placeholder="CVV" style="width: 40%; padding: 8px;">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-buy" style="width: 100%; margin-top: 2rem; border: none; padding: 1rem; cursor: pointer;">Place Order</button>
+        </form>
+    </div>
+
+    <div class="checkout-card" style="height: fit-content;">
+        <h3>Order Summary</h3>
+        {% for item in cart_items %}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>{{ item.product.title }} (x{{ item.quantity }})</span>
+            <span>₹{{ item.product.price }}</span>
+        </div>
+        {% endfor %}
+        <hr>
+        <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem;">
+            <span>Total</span>
+            <span>₹{{ total_price }}</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showPayment(type) {
+        document.getElementById('qr-section').style.display = 'none';
+        document.getElementById('card-section').style.display = 'none';
+        
+        if (type === 'qr') {
+            document.getElementById('qr-section').style.display = 'block';
+        } else if (type === 'card') {
+            document.getElementById('card-section').style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}
